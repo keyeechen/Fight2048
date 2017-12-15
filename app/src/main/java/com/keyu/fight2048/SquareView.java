@@ -21,6 +21,10 @@ public class SquareView extends View {
     private Context mContext;
     private Rect mBounds;//数字所占的矩形框，需要测量
 
+    public SquareView(Context context) {
+        this(context, null);
+    }
+
     public int getNumber() {
         return mNumber;
     }

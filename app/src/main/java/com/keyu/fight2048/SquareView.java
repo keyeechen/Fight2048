@@ -18,7 +18,7 @@ public class SquareView extends View {
             mText = typedArray.getString(R.styleable.SquareView_setText);
         }
         finally {
-            typedArray.recycle();
+//            typedArray.recycle();
         }
 
     }

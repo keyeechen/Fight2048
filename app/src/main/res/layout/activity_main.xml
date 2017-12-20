@@ -7,10 +7,13 @@
     android:id="@+id/ll"
     tools:context="com.keyu.fight2048.MainActivity">
 
-    <com.keyu.fight2048.SquareView
-        android:layout_width="60dp"
-        android:background="@color/colorPrimary"
-        app:setText="2048"
-        android:layout_height="60dp" />
+    <com.keyu.fight2048.Game2048Layout
+        android:id="@+id/game_area"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="#ffffffff"
+        android:padding="10dp">
+
+    </com.keyu.fight2048.Game2048Layout>
 
 </LinearLayout>

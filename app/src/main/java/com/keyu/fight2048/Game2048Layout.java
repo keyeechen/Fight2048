@@ -2,6 +2,7 @@ package com.keyu.fight2048;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -9,6 +10,7 @@ import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by focus on 2017/12/15.
@@ -53,9 +55,8 @@ public class Game2048Layout extends RelativeLayout {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         int wholeSize = Math.min(getMeasuredHeight(), getMeasuredWidth());
         int squareWidth = (wholeSize - 2 * mPadding - (mColumns - 1) * mMargin) / mColumns;
-        gameItems = new SquareView[mColumns * mColumns];
         if (isFirst) {
-
+            gameItems = new SquareView[mColumns * mColumns];
             for (int i = 0; i < mColumns * mColumns; i++) {
                 SquareView square = new SquareView(mContext);
                 gameItems[i] = square;
@@ -71,10 +72,12 @@ public class Game2048Layout extends RelativeLayout {
                 }
                 //不是第一行的处理, 要把方块放在上方方块之下
                 if (i / mColumns != 0) {
+                    lp.topMargin = mMargin;
                     lp.addRule(RelativeLayout.BELOW, gameItems[i - mColumns].getId());
                 }
                 addView(square, lp);//添加小方块到父控件中
             }
+            generateNum();
         }
         isFirst = false;
         setMeasuredDimension(wholeSize, wholeSize);//修改大方块的尺寸
@@ -87,6 +90,7 @@ public class Game2048Layout extends RelativeLayout {
     }
 
     private void actionMove(ACTION action) {
+        Log.i(getClass().getName(), "action = " + action);
         for (int i = 0; i < mColumns; i++) {
             List<SquareView> row = new ArrayList<>();
             for (int j = 0; j < mColumns; j++) {
@@ -101,6 +105,7 @@ public class Game2048Layout extends RelativeLayout {
                 int index = getIndexByAction(action, i, j);
                 if (row.get(j).getNumber() != gameItems[index].getNumber()) {
                     isMoveHappen = true;
+                    break;
                 }
             }
             //合并方块
@@ -113,12 +118,12 @@ public class Game2048Layout extends RelativeLayout {
     private class MyGestureDetectorListener extends GestureDetector.SimpleOnGestureListener {
 
         float mDensity = getResources().getDisplayMetrics().density;
-        float MIN_DISTANCE = mDensity * 50;
+        float MIN_DISTANCE = mDensity * 10;
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            float xDelta = e2.getX() - e2.getX();
-            float yDelta = e2.getY() - e2.getY();
+            float xDelta = e2.getX() - e1.getX();
+            float yDelta = e2.getY() - e1.getY();
             if (xDelta > MIN_DISTANCE && Math.abs(velocityX) > Math.abs(velocityY)) {//move right
                 actionMove(ACTION.RIGHT);
             } else if (xDelta < -MIN_DISTANCE && Math.abs(velocityX) > Math.abs(velocityY)) {//move left
@@ -169,6 +174,93 @@ public class Game2048Layout extends RelativeLayout {
                 row.get(j).setNumber(row.get(j + 1).getNumber());
             }
             row.get(row.size() - 1).setNumber(0);
+        }
+    }
+
+    /**
+     * 检查是否填满数字
+     *
+     * @return 数字填满：true，否则：false
+     */
+    private boolean isFull() {
+        for (int i = 0; i < gameItems.length; i++) {
+            if (gameItems[i].getNumber() == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 检查游戏是否结束
+     *
+     * @return
+     */
+    private boolean checkOver() {
+        if (!isFull()) {
+            return false;
+        }
+        for (int i = 0; i < mColumns; i++) {
+            for (int j = 0; j < mColumns; j++) {
+                int ind = i * mColumns + j;
+                SquareView curView = gameItems[ind];
+                //判断与左边是否相同
+                if (ind % mColumns > 0) {
+                    SquareView leftView = gameItems[ind - 1];
+                    if (curView.getNumber() == leftView.getNumber()) {
+                        return false;
+                    }
+                }
+                //判断与右边是否相同
+                if ((ind + 1) % mColumns != 0) {
+                    SquareView rightView = gameItems[ind + 1];
+                    if (curView.getNumber() == rightView.getNumber()) {
+                        return false;
+                    }
+                }
+                //判断与上边是否相同
+                if ((ind + 1) / mColumns > 0) {
+                    SquareView upView = gameItems[ind + 1];
+                    if (curView.getNumber() == upView.getNumber()) {
+                        return false;
+                    }
+                }
+                //判断与下边是否相同
+                if (ind / mColumns < mColumns - 1) {
+                    SquareView downView = gameItems[ind + 1];
+                    if (curView.getNumber() == downView.getNumber()) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 在空的格子上产生数字
+     */
+    private void generateNum() {
+        if (checkOver()) {
+            Log.i(getClass().getSimpleName(), "Game Over");
+            if (gameListener != null) {
+                gameListener.onGameOver();
+            }
+        }
+        if (!isFull()) {
+            if (isMergeHappen || isMoveHappen || isFirst) {
+                Random rand = new Random();
+                int nextInd = rand.nextInt(mColumns * mColumns);
+                SquareView squareView = gameItems[nextInd];
+                while (squareView.getNumber() != 0) {
+                    nextInd = rand.nextInt(mColumns * mColumns);
+                    squareView = gameItems[nextInd];
+                }
+                squareView.setNumber(Math.random() > 0.75 ? 2 : 4);
+                isMergeHappen = isMoveHappen = false;
+            }
+
+
         }
     }
 

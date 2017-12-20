@@ -5,18 +5,21 @@ import android.os.Bundle;
 import android.widget.LinearLayout;
 
 public class MainActivity extends AppCompatActivity implements  GameListener{
-    LinearLayout ll;
+    private Game2048Layout game2048Layout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        SquareView squareView = new SquareView(this, null);
-        ll.addView(squareView);
-        System.out.println("hello, world");
+        game2048Layout = findViewById(R.id.game_area);
     }
 
     @Override
     public void onScoreChange(int score) {
+
+    }
+
+    @Override
+    public void onGameOver() {
 
     }
 }

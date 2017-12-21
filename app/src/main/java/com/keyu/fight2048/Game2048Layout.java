@@ -109,6 +109,7 @@ public class Game2048Layout extends RelativeLayout {
                 }
             }
             //合并方块
+
             mergeItems(row);
             for (int j = 0; j < mColumns; j++) {
                 int index = getIndexByAction(action, i, j);
@@ -152,7 +153,7 @@ public class Game2048Layout extends RelativeLayout {
             case LEFT:
                 return i * mColumns + j;
             case RIGHT:
-                return i * mColumns + j;
+                return i * mColumns + mColumns - j - 1;
             case UP:
                 return i * mColumns + j;
             case DOWN:
@@ -173,16 +174,17 @@ public class Game2048Layout extends RelativeLayout {
             if (item1.getNumber() == item2.getNumber()) {
                 isMergeHappen = true;
                 item1.setNumber(2 * item1.getNumber());
+                mScore += item1.getNumber();
+                if (gameListener != null) {
+                    gameListener.onScoreChange(mScore);
+                }
+                //将后续元素向前移动
+                for (int j = i + 1; j < row.size() - 1; j++) {
+                    row.get(j).setNumber(row.get(j + 1).getNumber());
+                }
+                row.get(row.size() - 1).setNumber(0);
             }
-            mScore += item1.getNumber();
-            if (gameListener != null) {
-                gameListener.onScoreChange(mScore);
-            }
-            //将后续元素向前移动
-            for (int j = i + 1; j < row.size() - 1; j++) {
-                row.get(j).setNumber(row.get(j + 1).getNumber());
-            }
-            row.get(row.size() - 1).setNumber(0);
+
         }
     }
 

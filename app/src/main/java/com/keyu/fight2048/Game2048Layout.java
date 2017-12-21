@@ -155,9 +155,9 @@ public class Game2048Layout extends RelativeLayout {
             case RIGHT:
                 return i * mColumns + mColumns - j - 1;
             case UP:
-                return i * mColumns + j;
+                return j * mColumns + i;
             case DOWN:
-                return i * mColumns + j;
+                return (mColumns - 1 - j) * mColumns + i;
         }
         return i * mColumns + j;
     }

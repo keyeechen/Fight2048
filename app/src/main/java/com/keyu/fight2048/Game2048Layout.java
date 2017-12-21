@@ -57,6 +57,7 @@ public class Game2048Layout extends RelativeLayout {
         int squareWidth = (wholeSize - 2 * mPadding - (mColumns - 1) * mMargin) / mColumns;
         if (isFirst) {
             gameItems = new SquareView[mColumns * mColumns];
+
             for (int i = 0; i < mColumns * mColumns; i++) {
                 SquareView square = new SquareView(mContext);
                 gameItems[i] = square;
@@ -267,7 +268,7 @@ public class Game2048Layout extends RelativeLayout {
                     nextInd = rand.nextInt(mColumns * mColumns);
                     squareView = gameItems[nextInd];
                 }
-                squareView.setNumber(Math.random() > 0.75 ? 2 : 4);
+                squareView.setNumber(Math.random() > 1.0 ? 2 : 4);
                 isMergeHappen = isMoveHappen = false;
             }
 

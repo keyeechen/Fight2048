@@ -34,6 +34,7 @@ public class SquareView extends View {
         mText = mNumber + "";
         float scaledDensity = mContext.getResources().getDisplayMetrics().scaledDensity;
         mPaint.setTextSize(30 * scaledDensity);
+        mPaint.setAntiAlias(true);
         mBounds = new Rect();//数字所占矩形框，用于控制数字的显示位置
         mPaint.getTextBounds(mText, 0, mText.length(), mBounds);
         invalidate();//重新执行onDraw

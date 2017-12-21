@@ -95,7 +95,7 @@ public class SquareView extends View {
                 bgColor = R.color.color_num_default;
                 break;
         }
-        mPaint.setColor(bgColor);
+        mPaint.setColor(mContext.getResources().getColor(bgColor));
         mPaint.setStyle(Paint.Style.FILL);
         canvas.drawRect(0, 0, getWidth(), getHeight(), mPaint);
         if (mNumber != 0) {

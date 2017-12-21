@@ -110,8 +110,17 @@ public class Game2048Layout extends RelativeLayout {
             }
             //合并方块
             mergeItems(row);
-
+            for (int j = 0; j < mColumns; j++) {
+                int index = getIndexByAction(action, i, j);
+                if(j < row.size()){
+                    gameItems[index].setNumber(row.get(j).getNumber());
+                }
+                else{
+                    gameItems[index].setNumber(0);
+                }
+            }
         }
+        generateNum();
 
     }
 

@@ -20,7 +20,7 @@ public class SquareView extends View {
     private Paint mPaint;
     private Context mContext;
     private Rect mBounds;//数字所占的矩形框，需要测量
-
+    private float mDensity;
     public SquareView(Context context) {
         this(context, null);
     }
@@ -33,7 +33,7 @@ public class SquareView extends View {
         mNumber = number;
         mText = mNumber + "";
         float scaledDensity = mContext.getResources().getDisplayMetrics().scaledDensity;
-        mPaint.setTextSize(30 * scaledDensity);
+        mPaint.setTextSize(36 * scaledDensity);
         mPaint.setAntiAlias(true);
         mBounds = new Rect();//数字所占矩形框，用于控制数字的显示位置
         mPaint.getTextBounds(mText, 0, mText.length(), mBounds);
@@ -45,6 +45,7 @@ public class SquareView extends View {
         super(context, attrs);
         mContext = context;
         mPaint = new Paint();
+        mDensity = mContext.getResources().getDisplayMetrics().density;
         }
 
 
@@ -98,7 +99,8 @@ public class SquareView extends View {
         }
         mPaint.setColor(mContext.getResources().getColor(bgColor));
         mPaint.setStyle(Paint.Style.FILL);
-        canvas.drawRect(0, 0, getWidth(), getHeight(), mPaint);
+        //canvas.drawRect(0, 0, getWidth(), getHeight(), mPaint);
+        canvas.drawRoundRect(0, 0, getWidth(), getHeight(), 4 * mDensity, 4 * mDensity, mPaint);
         if (mNumber != 0) {
             drawText(canvas);
         }
@@ -106,6 +108,8 @@ public class SquareView extends View {
 
     private void drawText(Canvas canvas) {
         mPaint.setColor(Color.BLACK);
+        mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        mPaint.setStrokeWidth(2 * mDensity);
         float x = getWidth() / 2 - mBounds.width() / 2;
         float y = getHeight() / 2 + mBounds.height() / 2;//字的坐标比较特殊
         canvas.drawText(mText, x, y, mPaint);

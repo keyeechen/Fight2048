@@ -268,7 +268,7 @@ public class Game2048Layout extends RelativeLayout {
                     nextInd = rand.nextInt(mColumns * mColumns);
                     squareView = gameItems[nextInd];
                 }
-                squareView.setNumber(Math.random() > 1.0 ? 2 : 4);
+                squareView.setNumber(Math.random() > 0.5 ? 2 : 4);
                 isMergeHappen = isMoveHappen = false;
             }
 

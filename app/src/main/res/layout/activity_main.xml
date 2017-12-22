@@ -5,24 +5,93 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/ll"
+    android:background="@color/background_color"
     tools:context="com.keyu.fight2048.MainActivity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/my_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="#ff303030"
+        android:background="@color/dark_bar_color"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         android:elevation="4dp" />
 
+    <RelativeLayout
+        android:id="@+id/rl_whole_score_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/my_toolbar"
+        android:layout_marginTop="10dp"
+        android:paddingRight="10dp">
 
+        <LinearLayout
+            android:id="@+id/ll_best_score"
+            android:layout_width="80dp"
+            android:layout_height="70dp"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/background_score"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_best_score_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="BEST"
+                android:textColor="#ede4dc"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_best_score"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="0"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_score"
+            android:layout_width="80dp"
+            android:layout_height="70dp"
+            android:layout_marginRight="10dp"
+            android:layout_toLeftOf="@id/ll_best_score"
+            android:background="@drawable/background_score"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_score_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="SCORE"
+                android:textColor="#ede4dc"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_score"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="0"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </RelativeLayout>
     <com.keyu.fight2048.Game2048Layout
         android:id="@+id/game_area"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_centerInParent="true"
-        android:background="#ffffffff"
+        android:layout_below="@id/rl_whole_score_layout"
+        android:background="@color/background_color"
         android:padding="10dp">
 
     </com.keyu.fight2048.Game2048Layout>

@@ -1,5 +1,7 @@
 package com.keyu.fight2048;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -7,7 +9,6 @@ import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -17,14 +18,15 @@ import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity implements  GameListener{
     private Game2048Layout game2048Layout;
-    private ActionBar actionBar;
     private Toolbar myToolbar;
+    private SharedPreferences sp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         game2048Layout = findViewById(R.id.game_area);
         float mDensity = getResources().getDisplayMetrics().density;
+        sp = getPreferences(Context.MODE_PRIVATE);
         myToolbar = findViewById(R.id.my_toolbar);
         myToolbar.setTitle(R.string.app_simple_name);
         myToolbar.setTitleTextColor(Color.WHITE);

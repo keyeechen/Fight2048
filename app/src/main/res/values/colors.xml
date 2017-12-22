@@ -19,4 +19,7 @@
     <color name="color_num_default">#EA7821</color>
     <color name="background_color">#faf8f0</color>
     <color name="dark_bar_color">#ff303030</color>
+    <color name="color_text_2_4">#756E66</color>
+    <color name="color_text_others">#FFFFFF</color>
+    <color name="color_deeper_background">#8c7a68</color>
 </resources>

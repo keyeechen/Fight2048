@@ -18,6 +18,7 @@ import java.util.Random;
 
 public class Game2048Layout extends RelativeLayout {
     private int mColumns = 4;
+    private  final  int LIMIT = 2048;
     private SquareView[] gameItems;
     private int mMargin = 10;//方块的横向和纵向距离
     private int mPadding;//布局的四边周围边距
@@ -28,7 +29,8 @@ public class Game2048Layout extends RelativeLayout {
     private GameListener gameListener;
     private Context mContext;
     private int mScore;
-
+    private boolean win = false;
+    private boolean newNumFlag = false;
     private enum ACTION {
         LEFT, RIGHT, UP, DOWN
     }
@@ -57,7 +59,6 @@ public class Game2048Layout extends RelativeLayout {
         int squareWidth = (wholeSize - 2 * mPadding - (mColumns - 1) * mMargin) / mColumns;
         if (isFirst) {
             gameItems = new SquareView[mColumns * mColumns];
-
             for (int i = 0; i < mColumns * mColumns; i++) {
                 SquareView square = new SquareView(mContext);
                 gameItems[i] = square;
@@ -121,15 +122,27 @@ public class Game2048Layout extends RelativeLayout {
                     gameItems[index].setNumber(0);
                 }
             }
+
         }
-        generateNum();
+        if (win) {
+            if (gameListener != null) {
+                gameListener.onGameWin(new GameCallBack() {
+                    @Override
+                    public void doAfterJob() {
+                        startOver();
+                    }
+                });
+            }
+        } else {
+            generateNum();
+        }
 
     }
 
     private class MyGestureDetectorListener extends GestureDetector.SimpleOnGestureListener {
 
         float mDensity = getResources().getDisplayMetrics().density;
-        float MIN_DISTANCE = mDensity * 10;
+        float MIN_DISTANCE = mDensity * 8;
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
@@ -174,10 +187,14 @@ public class Game2048Layout extends RelativeLayout {
             SquareView item2 = row.get(i + 1);
             if (item1.getNumber() == item2.getNumber()) {
                 isMergeHappen = true;
-                item1.setNumber(2 * item1.getNumber());
-                mScore += item1.getNumber();
+                int newNum = 2 * item1.getNumber();
+                item1.setNumber(newNum);
+                mScore += newNum;
                 if (gameListener != null) {
                     gameListener.onScoreChange(mScore);
+                }
+                if (newNum == LIMIT) {
+                    win = true;
                 }
                 //将后续元素向前移动
                 for (int j = i + 1; j < row.size() - 1; j++) {
@@ -231,15 +248,17 @@ public class Game2048Layout extends RelativeLayout {
                     }
                 }
                 //判断与上边是否相同
-                if ((ind + 1) / mColumns > 0) {
-                    SquareView upView = gameItems[ind + 1];
+                if (ind / mColumns > 0) {
+                    Log.i(getClass().getName(), "up ind = " + ind);
+                    SquareView upView = gameItems[ind - mColumns];
                     if (curView.getNumber() == upView.getNumber()) {
                         return false;
                     }
                 }
                 //判断与下边是否相同
                 if (ind / mColumns < mColumns - 1) {
-                    SquareView downView = gameItems[ind + 1];
+                    Log.i(getClass().getName(), "down ind = " + ind);
+                    SquareView downView = gameItems[ind + mColumns];
                     if (curView.getNumber() == downView.getNumber()) {
                         return false;
                     }
@@ -253,12 +272,19 @@ public class Game2048Layout extends RelativeLayout {
      * 在空的格子上产生数字
      */
     private void generateNum() {
+
         if (checkOver()) {
             Log.i(getClass().getSimpleName(), "Game Over");
             if (gameListener != null) {
-                gameListener.onGameOver();
+                gameListener.onGameOver(new GameCallBack() {
+                    @Override
+                    public void doAfterJob() {
+                        startOver();
+                    }
+                });
             }
         }
+        newNumFlag = false;
         if (!isFull()) {
             if (isMergeHappen || isMoveHappen || isFirst) {
                 Random rand = new Random();
@@ -267,13 +293,39 @@ public class Game2048Layout extends RelativeLayout {
                 while (squareView.getNumber() != 0) {
                     nextInd = rand.nextInt(mColumns * mColumns);
                     squareView = gameItems[nextInd];
+                    newNumFlag = true;
                 }
                 squareView.setNumber(Math.random() > 0.5 ? 2 : 4);
                 isMergeHappen = isMoveHappen = false;
             }
-
-
         }
+
+        if (newNumFlag && checkOver()) {
+            Log.i(getClass().getSimpleName(), "Game Over");
+            if (gameListener != null) {
+                gameListener.onGameOver(new GameCallBack() {
+                    @Override
+                    public void doAfterJob() {
+                        startOver();
+                    }
+                });
+            }
+        }
+    }
+
+    /**
+     * 重新开始游戏
+     */
+    public void startOver() {
+        for (int i = 0; i < mColumns; i++) {
+            for (int j = 0; j < mColumns; j++) {
+                int ind = i * mColumns + j;
+                gameItems[ind].setNumber(0);
+            }
+        }
+        win = false;
+        isFirst = true;
+        generateNum();
     }
 
 }

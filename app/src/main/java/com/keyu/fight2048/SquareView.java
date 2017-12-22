@@ -107,7 +107,29 @@ public class SquareView extends View {
     }
 
     private void drawText(Canvas canvas) {
-        mPaint.setColor(Color.BLACK);
+        int textColor;
+        switch (mNumber) {
+
+            case 2:
+            case 4:
+                textColor = R.color.color_text_2_4;
+                break;
+            case 8:
+            case 16:
+            case 32:
+            case 64:
+            case 128:
+            case 256:
+            case 512:
+            case 1024:
+            case 2048:
+                textColor = R.color.color_text_others;
+                break;
+            default:
+                textColor = R.color.color_text_2_4;
+                break;
+        }
+        mPaint.setColor(mContext.getResources().getColor(textColor));
         mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         mPaint.setStrokeWidth(2 * mDensity);
         float x = getWidth() / 2 - mBounds.width() / 2;

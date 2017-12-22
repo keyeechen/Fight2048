@@ -16,5 +16,12 @@ public interface GameListener {
    /**
     * 监听游戏结束
     */
-   void onGameOver();
+   void onGameOver(GameCallBack callBack);
+
+   /**
+    * 监听游戏胜利
+    */
+   void onGameWin(GameCallBack callBack);
+
+
 }

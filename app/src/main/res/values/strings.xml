@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Fight2048</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="app_simple_name">&#160;2048</string>
 
 </resources>

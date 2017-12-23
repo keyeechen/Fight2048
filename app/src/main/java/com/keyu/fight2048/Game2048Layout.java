@@ -82,7 +82,7 @@ public class Game2048Layout extends RelativeLayout {
             generateNum();
         }
         isFirst = false;
-        setMeasuredDimension(wholeSize, wholeSize);//修改大方块的尺寸
+        setMeasuredDimension(wholeSize, getMeasuredHeight());//修改大方块的尺寸
     }
 
     @Override

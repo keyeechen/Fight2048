@@ -325,6 +325,7 @@ public class Game2048Layout extends RelativeLayout {
         }
         win = false;
         isFirst = true;
+        mScore = 0;
         generateNum();
     }
 

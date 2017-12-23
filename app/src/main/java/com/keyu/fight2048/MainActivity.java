@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity implements  GameListener{
     private Game2048Layout game2048Layout;
     private Toolbar myToolbar;
     private SharedPreferences sp;
-    private TextView tv_score;
+    private static  TextView tv_score;
     private TextView tv_best_score;
     private int highestScore;
     private static GameCallBack mGameCallBack;
@@ -144,6 +144,7 @@ public class MainActivity extends AppCompatActivity implements  GameListener{
                 @Override
                 public void onClick(View view) {
                      if(mGameCallBack != null){
+                         tv_score.setText("0");
                          mGameCallBack.doAfterJob();
                          GameOverDialog.this.dismiss();
                      }
@@ -163,6 +164,7 @@ public class MainActivity extends AppCompatActivity implements  GameListener{
                 @Override
                 public void onClick(View view) {
                     if(mGameCallBack != null){
+                        tv_score.setText("0");
                         mGameCallBack.doAfterJob();
                         GameWinDialog.this.dismiss();
                     }

@@ -2,6 +2,7 @@ package com.keyu.fight2048;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -108,6 +109,8 @@ public class MainActivity extends AppCompatActivity implements  GameListener{
                         }).create().show();
                 return true;
             case R.id.action_settings:
+                Intent intent = new Intent(this, ConnectActivity.class);
+                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

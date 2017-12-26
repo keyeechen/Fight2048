@@ -30,6 +30,7 @@ import android.widget.TextView;
 
 import com.keyu.fight2048.bean.Message2048;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,6 +39,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity implements  GameListener{
     private Game2048Layout game2048Layout;
@@ -47,6 +52,14 @@ public class MainActivity extends AppCompatActivity implements  GameListener{
     private TextView tv_best_score;
     private int highestScore;
     private static GameCallBack mGameCallBack;
+    private ExecutorService executorService;
+    private ObjectInputStream in;
+    private ObjectOutputStream out;
+    private final String SERVER_IP = "10.0.2.2";
+    private final int SERVER_PORT = 6665;
+    private int mColumns = 4;
+    private String userName;
+    private final int SLEEP_TIME = 1500;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,32 +89,9 @@ public class MainActivity extends AppCompatActivity implements  GameListener{
         Drawable drawable = new BitmapDrawable(resizedBitmap);
         myToolbar.setLogo(drawable);
         setSupportActionBar(myToolbar);
-        String path = Environment.getDataDirectory()+ File.separator + "msg.txt";
-        try {
-            File file = new File(path);
-            if(!file.exists()){
-                file.createNewFile();
-            }
-            FileOutputStream fos = new FileOutputStream(path);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            Message2048 msg = new Message2048(0);
-            oos.writeObject(msg);
-            FileInputStream fis = new FileInputStream(path);
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            try {
-                Message2048 msgOut = (Message2048) ois.readObject();
-                if(msgOut != null){
-                   Log.i(getLocalClassName(), msgOut.toString());
-                }
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+        executorService = Executors.newCachedThreadPool();
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
     }
 
     @Override
@@ -126,6 +116,16 @@ public class MainActivity extends AppCompatActivity implements  GameListener{
         mGameCallBack = callBack;
         GameWinDialog winDialog = new GameWinDialog();
         winDialog.show(getSupportFragmentManager(), "GameWin");
+    }
+
+    @Override
+    public void onNumsChange(int[] gameNums) {
+        executorService.execute(new SendThread(gameNums));
+    }
+
+    @Override
+    public void onNumsSetup(int[] gameNums) {
+        executorService.execute(new ConnectThread(gameNums));
     }
 
     @Override
@@ -216,4 +216,79 @@ public class MainActivity extends AppCompatActivity implements  GameListener{
         }
     }
 
+    class ConnectThread implements Runnable {
+        public ConnectThread(int[] gameNums) {
+            this.gameNums = gameNums;
+        }
+
+        private int gameNums[];
+
+        @Override
+        public void run() {
+            try {
+                Socket socket = new Socket(SERVER_IP, SERVER_PORT);
+                out = new ObjectOutputStream(socket.getOutputStream());
+                in = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
+                userName = "user" + new Random().nextInt(100);
+                Message2048 msg = new Message2048(mColumns);
+                msg.setUserName(userName);
+                msg.setType(new Random().nextInt(5));
+                msg.setItemNums(gameNums);
+                out.writeObject(msg);
+                out.flush();
+                receiveMsg();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    class SendThread implements Runnable {
+        public SendThread(int[] gameNums) {
+            this.gameNums = gameNums;
+        }
+
+        private int gameNums[];
+
+        @Override
+        public void run() {
+            try {
+                Message2048 msg = new Message2048(mColumns);
+                msg.setUserName(userName);
+                msg.setItemNums(gameNums);
+                msg.setType(new Random().nextInt(5));
+                out.writeObject(msg);
+                out.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+    }
+
+    /**
+     * 接收消息的方法
+     */
+    private void receiveMsg() {
+        while (true) {
+            try {
+                final Message2048 msg = (Message2048) in.readObject();
+                if (msg != null && !userName.equals(msg.getUserName())) {//只接收别的客户端的信息
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // tv_from_server.setText(msg.toString() +"\n" + tv_from_server.getText());
+                            game2048Layout.updateBoard(msg.getItemNums());
+                        }
+                    });
+                }
+                Thread.sleep(SLEEP_TIME);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
 }

@@ -30,8 +30,8 @@ public class ServerService extends Service {
     private List<ServerThread> threadList = new ArrayList<>();
     private ServerSocket serverSocket;
     private ExecutorService mExecutorService;
-    private String sendMsg = null;
     private Message2048 receiveMsg = null;
+    private  final int SLEEP_TIME = 1500;
 
     @Override
     public void onCreate() {
@@ -52,8 +52,9 @@ public class ServerService extends Service {
                             ServerThread serverThread = new ServerThread(client);
                             threadList.add(serverThread);
                             mExecutorService.execute(serverThread);
+                            Thread.sleep(SLEEP_TIME);
 
-                        } catch (IOException ioe) {
+                        } catch (Exception ioe) {
                         }
 
                     }
@@ -85,10 +86,10 @@ public class ServerService extends Service {
             try {
                 out = new ObjectOutputStream(mSocket.getOutputStream());
                 in = new ObjectInputStream(new BufferedInputStream(mSocket.getInputStream()));
-                Message2048 msg = new Message2048(4);
+                /*Message2048 msg = new Message2048(4);
                 msg.setUserName("server");
                 out.writeObject(msg);
-                out.flush();
+                out.flush();*/
             } catch (IOException ioe) {
 
             }
@@ -107,6 +108,7 @@ public class ServerService extends Service {
                             st.sendMsg();
                         }
                     }
+                    Thread.sleep(SLEEP_TIME);
                 }
             } catch (Exception ioe) {
 

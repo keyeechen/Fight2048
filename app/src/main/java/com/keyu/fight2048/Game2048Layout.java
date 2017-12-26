@@ -35,6 +35,7 @@ public class Game2048Layout extends RelativeLayout {
         LEFT, RIGHT, UP, DOWN
     }
 
+    private int[] gameNums;
     public Game2048Layout(Context context) {
         super(context);
     }
@@ -59,6 +60,7 @@ public class Game2048Layout extends RelativeLayout {
         int squareWidth = (wholeSize - 2 * mPadding - (mColumns - 1) * mMargin) / mColumns;
         if (isFirst) {
             gameItems = new SquareView[mColumns * mColumns];
+            gameNums = new int[mColumns * mColumns];
             for (int i = 0; i < mColumns * mColumns; i++) {
                 SquareView square = new SquareView(mContext);
                 gameItems[i] = square;
@@ -80,6 +82,10 @@ public class Game2048Layout extends RelativeLayout {
                 addView(square, lp);//添加小方块到父控件中
             }
             generateNum();
+            //将最新数字发出去
+            if (gameListener != null) {
+                gameListener.onNumsSetup(gameNums);
+            }
         }
         isFirst = false;
         setMeasuredDimension(wholeSize, getMeasuredHeight());//修改大方块的尺寸
@@ -124,6 +130,15 @@ public class Game2048Layout extends RelativeLayout {
             }
 
         }
+        //获取最新棋盘上的数字
+        for (int i = 0; i < mColumns; i++) {
+            for (int j = 0; j < mColumns; j++) {
+                int ind = i * mColumns + j;
+                gameNums[ind] = gameItems[ind].getNumber();
+            }
+        }
+
+
         if (win) {
             if (gameListener != null) {
                 gameListener.onGameWin(new GameCallBack() {
@@ -135,6 +150,10 @@ public class Game2048Layout extends RelativeLayout {
             }
         } else {
             generateNum();
+            //将最新数字发出去
+            if (gameListener != null) {
+                gameListener.onNumsChange(gameNums);
+            }
         }
 
     }
@@ -327,6 +346,16 @@ public class Game2048Layout extends RelativeLayout {
         isFirst = true;
         mScore = 0;
         generateNum();
+    }
+
+    public void updateBoard(int[] gameNums) {
+        this.gameNums = gameNums;
+        for (int i = 0; i < mColumns; i++) {
+            for (int j = 0; j < mColumns; j++) {
+                int ind = i * mColumns + j;
+                gameItems[ind].setNumber(gameNums[ind]);
+            }
+        }
     }
 
 }

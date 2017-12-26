@@ -30,7 +30,7 @@ public class ConnectActivity extends AppCompatActivity implements View.OnClickLi
     private final int SERVER_PORT = 6665;
     private int mColumns = 4;
     private String userName;
-
+    private final int SLEEP_TIME = 1500;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,7 +111,7 @@ public class ConnectActivity extends AppCompatActivity implements View.OnClickLi
         while (true) {
             try {
                 final Message2048 msg = (Message2048) in.readObject();
-                if (msg != null) {//只接收别的客户端的信息
+                if (msg != null && !userName.equals(msg.getUserName())) {//只接收别的客户端的信息
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -119,6 +119,7 @@ public class ConnectActivity extends AppCompatActivity implements View.OnClickLi
                         }
                     });
                 }
+                Thread.sleep(SLEEP_TIME);
             } catch (Exception e) {
                 e.printStackTrace();
             }

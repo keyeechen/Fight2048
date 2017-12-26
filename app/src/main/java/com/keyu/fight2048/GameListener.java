@@ -23,5 +23,13 @@ public interface GameListener {
     */
    void onGameWin(GameCallBack callBack);
 
+   void onNumsChange(int gameNums[]);
+
+   /**
+    * 监听棋盘的初始数据
+    * @param gameNums
+    */
+   void onNumsSetup(int gameNums[]);
+
 
 }

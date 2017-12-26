@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.keyu.fight2048.bean.Message2048;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -64,8 +65,8 @@ public class ConnectActivity extends AppCompatActivity implements View.OnClickLi
         public void run() {
             try {
                 Socket socket = new Socket(SERVER_IP, SERVER_PORT);
-                in = new ObjectInputStream(socket.getInputStream());
                 out = new ObjectOutputStream(socket.getOutputStream());
+                in = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
                 userName = "user" + new Random().nextInt(100);
                 Message2048 msg = new Message2048(mColumns);
                 msg.setUserName(userName);
@@ -110,11 +111,11 @@ public class ConnectActivity extends AppCompatActivity implements View.OnClickLi
         while (true) {
             try {
                 final Message2048 msg = (Message2048) in.readObject();
-                if (msg != null && !userName.equals(msg.getUserName())) {//只接收别的客户端的信息
+                if (msg != null) {//只接收别的客户端的信息
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            tv_from_server.setText(msg.toString());
+                            tv_from_server.setText(msg.toString() +"\n" + tv_from_server.getText());
                         }
                     });
                 }

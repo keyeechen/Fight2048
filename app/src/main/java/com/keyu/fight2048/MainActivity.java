@@ -11,6 +11,8 @@ import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
@@ -25,6 +27,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.keyu.fight2048.bean.Message2048;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 public class MainActivity extends AppCompatActivity implements  GameListener{
     private Game2048Layout game2048Layout;
@@ -63,6 +76,32 @@ public class MainActivity extends AppCompatActivity implements  GameListener{
         Drawable drawable = new BitmapDrawable(resizedBitmap);
         myToolbar.setLogo(drawable);
         setSupportActionBar(myToolbar);
+        String path = Environment.getDataDirectory()+ File.separator + "msg.txt";
+        try {
+            File file = new File(path);
+            if(!file.exists()){
+                file.createNewFile();
+            }
+            FileOutputStream fos = new FileOutputStream(path);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            Message2048 msg = new Message2048(0);
+            oos.writeObject(msg);
+            FileInputStream fis = new FileInputStream(path);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            try {
+                Message2048 msgOut = (Message2048) ois.readObject();
+                if(msgOut != null){
+                   Log.i(getLocalClassName(), msgOut.toString());
+                }
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

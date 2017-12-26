@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.keyu.fight2048.bean.Message2048;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -76,14 +77,14 @@ public class ServerService extends Service {
      */
     class ServerThread implements Runnable {
         private Socket mSocket;
-        private ObjectInputStream in;
-        private ObjectOutputStream out;
+        private ObjectInputStream in = null;
+        private ObjectOutputStream out = null;
 
         public ServerThread(Socket mSocket) {
             this.mSocket = mSocket;
             try {
-                in = new ObjectInputStream(mSocket.getInputStream());
                 out = new ObjectOutputStream(mSocket.getOutputStream());
+                in = new ObjectInputStream(new BufferedInputStream(mSocket.getInputStream()));
                 Message2048 msg = new Message2048(4);
                 msg.setUserName("server");
                 out.writeObject(msg);

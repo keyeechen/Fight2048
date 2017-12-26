@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -120,12 +121,22 @@ public class MainActivity extends AppCompatActivity implements  GameListener{
 
     @Override
     public void onNumsChange(int[] gameNums) {
-        executorService.execute(new SendThread(gameNums));
+        //executorService.execute(new SendThread(gameNums));
     }
 
     @Override
     public void onNumsSetup(int[] gameNums) {
-        executorService.execute(new ConnectThread(gameNums));
+        //executorService.execute(new ConnectThread(gameNums));
+    }
+
+    @Override
+    public void onNumsChange1(ArrayList itemNumList) {
+        executorService.execute(new SendThread(itemNumList));
+    }
+
+    @Override
+    public void onNumsSetup1(ArrayList itemNumList) {
+        executorService.execute(new ConnectThread(itemNumList));
     }
 
     @Override
@@ -222,6 +233,12 @@ public class MainActivity extends AppCompatActivity implements  GameListener{
         }
 
         private int gameNums[];
+        private ArrayList<Integer> itemNumList;
+
+        public ConnectThread(ArrayList<Integer> itemNumList) {
+            this.itemNumList = itemNumList;
+        }
+
 
         @Override
         public void run() {
@@ -234,6 +251,7 @@ public class MainActivity extends AppCompatActivity implements  GameListener{
                 msg.setUserName(userName);
                 msg.setType(new Random().nextInt(5));
                 msg.setItemNums(gameNums);
+                msg.setItemNumList(itemNumList);
                 out.writeObject(msg);
                 out.flush();
                 receiveMsg();
@@ -248,8 +266,13 @@ public class MainActivity extends AppCompatActivity implements  GameListener{
         public SendThread(int[] gameNums) {
             this.gameNums = gameNums;
         }
-
         private int gameNums[];
+
+        public SendThread(ArrayList<Integer> itemNumList) {
+            this.itemNumList = itemNumList;
+        }
+
+        private ArrayList<Integer> itemNumList;
 
         @Override
         public void run() {
@@ -257,6 +280,7 @@ public class MainActivity extends AppCompatActivity implements  GameListener{
                 Message2048 msg = new Message2048(mColumns);
                 msg.setUserName(userName);
                 msg.setItemNums(gameNums);
+                msg.setItemNumList(itemNumList);
                 msg.setType(new Random().nextInt(5));
                 out.writeObject(msg);
                 out.flush();
@@ -280,7 +304,7 @@ public class MainActivity extends AppCompatActivity implements  GameListener{
                         @Override
                         public void run() {
                             // tv_from_server.setText(msg.toString() +"\n" + tv_from_server.getText());
-                            game2048Layout.updateBoard(msg.getItemNums());
+                            game2048Layout.updateBoard1(msg.getItemNumList());
                         }
                     });
                 }

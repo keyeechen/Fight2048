@@ -101,6 +101,7 @@ public class ServerService extends Service {
 
             try {
                 while (true) {
+                    receiveMsg = null;
                     receiveMsg = (Message2048) in.readObject();
                     if (receiveMsg != null) {
                         Log.i(getClass().getName(), receiveMsg.toString());

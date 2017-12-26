@@ -36,6 +36,7 @@ public class Game2048Layout extends RelativeLayout {
     }
 
     private int[] gameNums;
+    private ArrayList<Integer> mItemNumList;
     public Game2048Layout(Context context) {
         super(context);
     }
@@ -61,6 +62,7 @@ public class Game2048Layout extends RelativeLayout {
         if (isFirst) {
             gameItems = new SquareView[mColumns * mColumns];
             gameNums = new int[mColumns * mColumns];
+            mItemNumList = new ArrayList<>();
             for (int i = 0; i < mColumns * mColumns; i++) {
                 SquareView square = new SquareView(mContext);
                 gameItems[i] = square;
@@ -82,9 +84,19 @@ public class Game2048Layout extends RelativeLayout {
                 addView(square, lp);//添加小方块到父控件中
             }
             generateNum();
+            mItemNumList.clear();
+            //获取最新棋盘上的数字
+            for (int i = 0; i < mColumns; i++) {
+                for (int j = 0; j < mColumns; j++) {
+                    int ind = i * mColumns + j;
+                    gameNums[ind] = gameItems[ind].getNumber();
+                    mItemNumList.add(gameNums[ind]);
+                }
+            }
             //将最新数字发出去
             if (gameListener != null) {
                 gameListener.onNumsSetup(gameNums);
+                gameListener.onNumsSetup1(mItemNumList);
             }
         }
         isFirst = false;
@@ -130,13 +142,6 @@ public class Game2048Layout extends RelativeLayout {
             }
 
         }
-        //获取最新棋盘上的数字
-        for (int i = 0; i < mColumns; i++) {
-            for (int j = 0; j < mColumns; j++) {
-                int ind = i * mColumns + j;
-                gameNums[ind] = gameItems[ind].getNumber();
-            }
-        }
 
 
         if (win) {
@@ -150,9 +155,19 @@ public class Game2048Layout extends RelativeLayout {
             }
         } else {
             generateNum();
+            mItemNumList.clear();
+            //获取最新棋盘上的数字
+            for (int i = 0; i < mColumns; i++) {
+                for (int j = 0; j < mColumns; j++) {
+                    int ind = i * mColumns + j;
+                    gameNums[ind] = gameItems[ind].getNumber();
+                    mItemNumList.add(gameNums[ind]);
+                }
+            }
             //将最新数字发出去
             if (gameListener != null) {
                 gameListener.onNumsChange(gameNums);
+                gameListener.onNumsChange1(mItemNumList);
             }
         }
 
@@ -354,6 +369,16 @@ public class Game2048Layout extends RelativeLayout {
             for (int j = 0; j < mColumns; j++) {
                 int ind = i * mColumns + j;
                 gameItems[ind].setNumber(gameNums[ind]);
+            }
+        }
+    }
+
+    public void updateBoard1(ArrayList<Integer> itemNumList) {
+        this.mItemNumList = itemNumList;
+        for (int i = 0; i < mColumns; i++) {
+            for (int j = 0; j < mColumns; j++) {
+                int ind = i * mColumns + j;
+                gameItems[ind].setNumber(mItemNumList.get(ind));
             }
         }
     }

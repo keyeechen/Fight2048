@@ -1,5 +1,7 @@
 package com.keyu.fight2048;
 
+import java.util.ArrayList;
+
 /**
  * Created by focus on 2017/12/17.
  */
@@ -30,6 +32,14 @@ public interface GameListener {
     * @param gameNums
     */
    void onNumsSetup(int gameNums[]);
+
+   void onNumsChange1(ArrayList itemNumList);
+
+   /**
+    * 监听棋盘的初始数据
+    * @param itemNumList
+    */
+   void onNumsSetup1(ArrayList itemNumList);
 
 
 }

@@ -1,6 +1,7 @@
 package com.keyu.fight2048.bean;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -14,6 +15,16 @@ public class Message2048 implements Serializable {
     private int mColumns;//2048棋盘大小
     private int itemNums[];//2048棋盘上的数字
 
+    public ArrayList<Integer> getItemNumList() {
+        return itemNumList;
+    }
+
+    public void setItemNumList(ArrayList<Integer> itemNumList) {
+        this.itemNumList = itemNumList;
+    }
+
+    private ArrayList<Integer> itemNumList;
+
 
     public Message2048(int columns) {
         this.mColumns = columns;
@@ -24,16 +35,6 @@ public class Message2048 implements Serializable {
 
     public int getType() {
         return type;
-    }
-
-    @Override
-    public String toString() {
-        return "Message2048{" +
-                "type=" + type +
-                ", userName='" + userName + '\'' +
-                ", mColumns=" + mColumns +
-                ", itemNums=" + Arrays.toString(itemNums) +
-                '}';
     }
 
     public void setType(int type) {
@@ -64,4 +65,14 @@ public class Message2048 implements Serializable {
         this.itemNums = itemNums;
     }
 
+    @Override
+    public String toString() {
+        return "Message2048{" +
+                "type=" + type +
+                ", userName='" + userName + '\'' +
+                ", mColumns=" + mColumns +
+                ", itemNums=" + Arrays.toString(itemNums) +
+                ", itemNumList=" + itemNumList +
+                '}';
+    }
 }

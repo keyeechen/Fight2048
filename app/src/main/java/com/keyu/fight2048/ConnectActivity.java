@@ -1,107 +1,128 @@
 package com.keyu.fight2048;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import com.keyu.fight2048.bean.Message2048;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ConnectActivity extends AppCompatActivity {
-    private Button btnSend;
-    private PrintWriter printWriter;
-    private BufferedReader bufferedReader;
-    private final String SERVER_IP = "10.0.2.15";
-    private final int SERVER_PORT = 10001;
-    private String receivedMsg = "";
+public class ConnectActivity extends AppCompatActivity implements View.OnClickListener {
     private TextView tv_from_server;
-    private TextView btn_connect;
-    private TextView btn_send;
-    private ExecutorService mExecuterService;
+    private Button btn_connect;
+    private Button btn_send;
+    private Button btn_disconnect;
+    private ExecutorService executorService;
+    private ObjectInputStream in;
+    private ObjectOutputStream out;
+    private final String CHAR_SET = "UTF-8";
+    private final String SERVER_IP = "10.0.2.2";
+    private final int SERVER_PORT = 6665;
+    private int mColumns = 4;
+    private String userName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_connect);
+        setContentView(R.layout.activity_connect2);
         tv_from_server = findViewById(R.id.tv_from_server);
-        btn_connect = findViewById(R.id.btn_connect);
         btn_send = findViewById(R.id.btn_send);
-        mExecuterService = Executors.newCachedThreadPool();
-        btn_connect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mExecuterService.execute(new ConnectThread());
-            }
-        });
-        btn_send.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mExecuterService.execute(new SendThread());
-            }
-        });
+        btn_connect = findViewById(R.id.btn_connect);
+        btn_disconnect = findViewById(R.id.btn_disconnect);
+        executorService = Executors.newCachedThreadPool();
 
     }
 
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.btn_connect:
+                executorService.execute(new ConnectThread());
+                break;
+            case R.id.btn_send:
+                executorService.execute(new SendThread());
+                break;
+            case R.id.btn_disconnect:
+                executorService.execute(new DisconnectThread());
+                break;
+        }
+    }
+
     class ConnectThread implements Runnable {
+
 
         @Override
         public void run() {
             try {
                 Socket socket = new Socket(SERVER_IP, SERVER_PORT);
-                Log.i(getLocalClassName(), "connected");
-                printWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8")), true);
-                bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+                in = new ObjectInputStream(socket.getInputStream());
+                out = new ObjectOutputStream(socket.getOutputStream());
+                userName = "user" + new Random().nextInt(100);
+                Message2048 msg = new Message2048(mColumns);
+                msg.setUserName(userName);
+                msg.setType(new Random().nextInt(5));
+                out.writeObject(msg);
+                out.flush();
                 receiveMsg();
 
-            } catch (IOException ioe) {
-
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
-
     }
 
-    class SendThread implements  Runnable{
+    class SendThread implements Runnable {
         @Override
         public void run() {
-            printWriter.println(new Random().nextInt(20)+ "");
+            try {
+                Message2048 msg = new Message2048(mColumns);
+                msg.setUserName(userName);
+                msg.setType(new Random().nextInt(5));
+                out.writeObject(msg);
+                out.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
         }
     }
 
+    class DisconnectThread implements Runnable {
+        @Override
+        public void run() {
 
+        }
+    }
     /**
-     * 接收来自服务器的消息
+     * 接收消息的方法
      */
-    private void receiveMsg(){
-        while(true){
+    private void receiveMsg() {
+        while (true) {
             try {
-                if((receivedMsg = bufferedReader.readLine()) != null){
+                final Message2048 msg = (Message2048) in.readObject();
+                if (msg != null && !userName.equals(msg.getUserName())) {//只接收别的客户端的信息
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            tv_from_server.setText(receivedMsg +"\n" + tv_from_server.getText());
+                            tv_from_server.setText(msg.toString());
                         }
                     });
                 }
-
-            }
-            catch (IOException ioe){
-
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
+
     }
+
 }

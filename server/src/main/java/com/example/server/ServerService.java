@@ -6,12 +6,11 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import com.keyu.fight2048.bean.Message2048;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -25,12 +24,13 @@ import java.util.concurrent.Executors;
  */
 
 public class ServerService extends Service {
-    private final int SERVER_PORT = 10001;
+    private final int SERVER_PORT = 6666;
     private List<Socket> socketList = new ArrayList<>();
+    private List<ServerThread> threadList = new ArrayList<>();
     private ServerSocket serverSocket;
     private ExecutorService mExecutorService;
     private String sendMsg = null;
-    private String receiveMsg = null;
+    private Message2048 receiveMsg = null;
 
     @Override
     public void onCreate() {
@@ -40,15 +40,18 @@ public class ServerService extends Service {
             Log.i(getClass().getName(), "server starts at port:" + SERVER_PORT);
             mExecutorService = Executors.newCachedThreadPool();
             mExecutorService.execute(new Runnable() {
-                Socket client;
 
                 @Override
                 public void run() {
                     while (true) {
                         try {
-                            client = serverSocket.accept();
+                            Socket client = serverSocket.accept();
+                            Log.i(getClass().getName(), "new client.");
                             socketList.add(client);
-                            mExecutorService.execute(new ServerThread(client));
+                            ServerThread serverThread = new ServerThread(client);
+                            threadList.add(serverThread);
+                            mExecutorService.execute(serverThread);
+
                         } catch (IOException ioe) {
                         }
 
@@ -73,15 +76,18 @@ public class ServerService extends Service {
      */
     class ServerThread implements Runnable {
         private Socket mSocket;
-        private BufferedReader in;
-        private PrintWriter out;
+        private ObjectInputStream in;
+        private ObjectOutputStream out;
 
         public ServerThread(Socket mSocket) {
             this.mSocket = mSocket;
             try {
-                in = new BufferedReader(new InputStreamReader(mSocket.getInputStream(), "UTF-8"));
-                out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(mSocket.getOutputStream(), "UTF-8")), true);
-                out.println("I`m server.");
+                in = new ObjectInputStream(mSocket.getInputStream());
+                out = new ObjectOutputStream(mSocket.getOutputStream());
+                Message2048 msg = new Message2048(4);
+                msg.setUserName("server");
+                out.writeObject(msg);
+                out.flush();
             } catch (IOException ioe) {
 
             }
@@ -93,15 +99,28 @@ public class ServerService extends Service {
 
             try {
                 while (true) {
-                    if ((receiveMsg = in.readLine()) != null) {
-
-                        sendMsg = " I have received: " + receiveMsg;
-                        Log.i(getClass().getName(), sendMsg);
-                        out.println(sendMsg);
+                    receiveMsg = (Message2048) in.readObject();
+                    if (receiveMsg != null) {
+                        Log.i(getClass().getName(), receiveMsg.toString());
+                        for (ServerThread st : threadList) {
+                            st.sendMsg();
+                        }
                     }
                 }
-            } catch (IOException ioe) {
+            } catch (Exception ioe) {
 
+            }
+        }
+
+        /**
+         * 转发消息给各客户端
+         */
+        public void sendMsg() {
+            try {
+                out.writeObject(receiveMsg);
+                out.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
